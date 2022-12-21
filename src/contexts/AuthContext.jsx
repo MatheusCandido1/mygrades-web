@@ -1,19 +1,26 @@
 import { createContext, useState } from "react";
 import { api } from "../lib/axios";
 import { useNavigate  } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
 
 export const AuthContext = createContext({});
 
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
 
-  const [user, setUser] = useState({});
+  const [user, setUser] = useState(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      return JSON.parse(user);
+    }
+    return {};
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   async function signOut() {
     try {
       setIsLoading(true);
-      await api.post("/auth/logout", {});
+      await api.post("/auth/logout", null);
       setUser({});
       localStorage.removeItem("token");
       localStorage.removeItem("user");
